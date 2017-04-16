@@ -14,6 +14,7 @@ public class Machine : MonoBehaviour {
 		
 	}
 
-    public void activate(Item item) {
+    virtual public bool activate(Item item) {
+        return false;
     }
 }

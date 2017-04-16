@@ -7,7 +7,7 @@ public class Avatar : MonoBehaviour {
     public new Camera camera;
     protected string avatarName;
     protected Item itemOnHand;
-    protected Item[] itemOwn;
+    protected List<Item> itemOwn;
     protected int itemNum;
     protected Controller controller;
     protected int mode;
@@ -20,8 +20,7 @@ public class Avatar : MonoBehaviour {
 	void Start () {
         mode = 0;
         itemOnHand = null;
-        itemOwn = new Item[4];
-        itemNum = 0;
+        itemOwn = new List<Item> ();
 	}
 	
 	// Update is called once per frame
@@ -50,10 +49,14 @@ public class Avatar : MonoBehaviour {
     }
     public void selectItem(int itemIdx) {
         if (itemIdx == -1) {                    // use hand
+            if (itemOnHand) {
+                itemOnHand.gameObject.SetActive (false);
+            }
             itemOnHand = null;
         }
         else {
             itemOnHand = itemOwn [itemIdx];
+            itemOnHand.gameObject.SetActive (true);
         }
     }
     public void interact() {
@@ -85,10 +88,25 @@ public class Avatar : MonoBehaviour {
         }
     }
     protected void pick(Item item) {
-        itemOwn [itemNum] = item;
-        itemNum++;
+        item.gameObject.transform.parent = transform.FindChild("Sight");
+        item.gameObject.transform.localPosition = new Vector3(0, -0.5f, 0.4f);
+        item.gameObject.SetActive (false);
+        itemOwn.Add(item);
     }
     protected void useItemOnHand(Machine machine) {
-        itemOnHand.usedOn (machine);
+        bool isDestroy = false;
+        itemOnHand.usedOn (machine, ref isDestroy);
+        if (isDestroy) {
+            itemOwn.Remove (itemOnHand);
+            Destroy (itemOnHand.gameObject);
+        }
+
+    }
+
+    public Item getItemOnHand() {
+        return itemOnHand;
+    }
+    public List<Item> getItemOwn() {
+        return itemOwn;
     }
 }
